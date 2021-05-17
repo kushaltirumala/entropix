@@ -74,6 +74,8 @@ for params in param_product:
 
         sigma = sanitise(torch.mm(data, data.t()) / data.shape[1])
 
+        import pdb; pdb.set_trace()
+
         assert ( sigma == sigma.t() ).all()
         n = sigma.shape[0]
 
