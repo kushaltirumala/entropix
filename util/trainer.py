@@ -33,6 +33,21 @@ class SimpleNet(nn.Module):
         return self.final(x)
 
 
+
+# def analyze_model(model):
+#
+#
+#     for p in model.named_parameters():
+#
+#         true_param = p[1]
+#         if true_param.requires_grad is None:
+#             continue
+#
+#
+#         import pdb; pdb.set_trace()
+#
+#         print("here")
+
 def train_network(train_loader, test_loader, depth, width, init_lr, decay, cuda, alpha, break_on_fit=True):
 
 
@@ -45,6 +60,8 @@ def train_network(train_loader, test_loader, depth, width, init_lr, decay, cuda,
 
     train_acc_list = []
     train_acc = 0
+
+    # import pdb; pdb.set_trace()
 
     for epoch in tqdm(range(100)):
         model.train()
@@ -60,6 +77,11 @@ def train_network(train_loader, test_loader, depth, width, init_lr, decay, cuda,
             model.zero_grad()
             loss.backward()
             optim.step()
+
+            # analyze_model(model)
+
+
+            # print("haha")
 
         lr_scheduler.step()
 

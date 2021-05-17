@@ -59,7 +59,7 @@ class Nero(Optimizer):
 
                 grad_normed = p.grad / (state['exp_avg_sq']/bias_correction).sqrt()
                 grad_normed[torch.isnan(grad_normed)] = 0
-                
+
                 p.data -= group['lr'] * state['scale'] * grad_normed
 
                 if self.constraints and p.dim() > 1:
