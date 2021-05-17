@@ -11,6 +11,14 @@ def increment_kernel(sigma):
     new_sigma /= math.pi
     return sanitise(new_sigma)
 
+def increment_kernel_resnet_my_derivation(sigma, alpha):
+    new_sigma = (1-sigma**2).sqrt()
+    new_sigma += sigma*(math.pi - sigma.acos())
+    new_sigma /= math.pi
+
+    new_sigma *= (1 + alpha**2)
+
+    return sanitise(new_sigma)
 # TODO: rewrite with cholesky_solve and Frobenius norm trace
 def complexity(sigma, c, samples):
     n = sigma.shape[0]
