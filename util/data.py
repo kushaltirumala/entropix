@@ -3,13 +3,13 @@ import numpy as np
 import torch
 from torchvision import datasets, transforms
 
-trainset = datasets.MNIST('./data', train=True, download=False,
+trainset = datasets.MNIST('./data', train=True, download=True,
                    transform=transforms.Compose([
                        transforms.ToTensor(),
                        transforms.Normalize((0.1307,), (0.3081,))
                    ]))
 
-testset = datasets.MNIST('./data', train=False, download=False,
+testset = datasets.MNIST('./data', train=False, download=True,
                    transform=transforms.Compose([
                        transforms.ToTensor(),
                        transforms.Normalize((0.1307,), (0.3081,))
