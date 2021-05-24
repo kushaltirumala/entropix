@@ -22,16 +22,66 @@ class SimpleNet(nn.Module):
         self.residual = residual
 
     def forward(self, x):
+
+        # if self.residual:
+        #     x = x + self.alpha * F.relu(self.initial(x)) * math.sqrt(2)
+        # else:
         x = self.initial(x)
         x = F.relu(x) * math.sqrt(2)
+
         for layer in self.layers:
             if self.residual:
-                x = x + F.relu(layer(x)) * math.sqrt(2)
+                x = x + self.alpha * F.relu(layer(x)) * math.sqrt(2)
             else:
                 x = F.relu(layer(x)) * math.sqrt(2)
 
-        return self.final(x)
+        # if self.residual:
+        #     import pdb; pdb.set_trace()
+        #     x = x + self.alpha * self.final(x)
+        # else:
+        x = self.final(x)
 
+        return x
+
+
+class ResidualNet(nn.Module):
+    def __init__(self, depth, width, alpha):
+        super(ResidualNet, self).__init__()
+
+        self.width = width
+        self.depth = depth
+        self.initial = nn.Linear(784, width, bias=False)
+        self.layers = nn.ModuleList([nn.Linear(width, width, bias=False) for _ in range(depth-2)])
+        self.final = nn.Linear(width, 1, bias=False)
+        self.alpha = alpha
+
+    def forward(self, x):
+
+        x = self.initial(x) * 1.0/np.sqrt(self.width)
+        # x = F.relu(x) * math.sqrt(2)
+
+        for layer in self.layers:
+            x = x + self.alpha * (1.0/np.sqrt(self.width)) * F.relu((2.0/np.sqrt(self.width)) * layer(x))
+
+        x = self.final(x)
+
+        return x
+
+class JeremySimpleNet(nn.Module):
+    def __init__(self, depth, width):
+        super(JeremySimpleNet, self).__init__()
+
+        self.initial = nn.Linear(784, width, bias=False)
+        self.layers = nn.ModuleList([nn.Linear(width, width, bias=False) for _ in range(depth-2)])
+        self.final = nn.Linear(width, 1, bias=False)
+
+    def forward(self, x):
+        x = self.initial(x)
+        x = F.relu(x) * math.sqrt(2)
+        for layer in self.layers:
+            x = layer(x)
+            x = F.relu(x) * math.sqrt(2)
+        return self.final(x)
 
 
 # def analyze_model(model):
@@ -51,7 +101,7 @@ class SimpleNet(nn.Module):
 def train_network(train_loader, test_loader, depth, width, init_lr, decay, cuda, alpha, break_on_fit=True):
 
 
-    model = SimpleNet(depth, width, alpha)
+    model = SimpleNet(depth, width, alpha, residual=True)
     if cuda:
         model = model.cuda()
     optim = Nero(model.parameters(), lr=init_lr)
