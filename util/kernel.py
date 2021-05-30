@@ -3,17 +3,18 @@ import torch
 import numpy as np
 
 def sanitise(sigma):
-    return sigma.clamp(min=-1,max=1)
+    return torch.clamp(sigma, -1, 1)
+    # return sigma.clamp(min=-1,max=1)
 
 def increment_kernel(sigma):
-    new_sigma = (1-sigma**2).sqrt()
-    new_sigma += sigma*(math.pi - sigma.acos())
+    new_sigma = torch.sqrt(1-sigma**2)
+    new_sigma += sigma*(math.pi - torch.acos(sigma))
     new_sigma /= math.pi
     return sanitise(new_sigma)
 
 def increment_kernel_resnet_my_derivation(sigma, alpha):
-    new_sigma = (1-sigma**2).sqrt()
-    new_sigma += sigma*(math.pi - sigma.acos())
+    new_sigma = torch.sqrt(1-sigma**2)
+    new_sigma += sigma*(math.pi - torch.acos(sigma))
     new_sigma /= math.pi
 
     new_sigma *= (1 + alpha**2)

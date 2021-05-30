@@ -57,11 +57,11 @@ class ResidualNet(nn.Module):
 
     def forward(self, x):
 
-        x = self.initial(x) * 1.0/np.sqrt(self.width)
-        # x = F.relu(x) * math.sqrt(2)
+        x = self.initial(x)
+        x = F.relu(x) * math.sqrt(2)
 
         for layer in self.layers:
-            x = x + self.alpha * (1.0/np.sqrt(self.width)) * F.relu((2.0/np.sqrt(self.width)) * layer(x))
+            x = math.sqrt(1 - self.alpha**2)*x + self.alpha * F.relu(layer(x)) * math.sqrt(2)
 
         x = self.final(x)
 
@@ -74,6 +74,8 @@ class JeremySimpleNet(nn.Module):
         self.initial = nn.Linear(784, width, bias=False)
         self.layers = nn.ModuleList([nn.Linear(width, width, bias=False) for _ in range(depth-2)])
         self.final = nn.Linear(width, 1, bias=False)
+        self.width = width
+        self.depth = depth
 
     def forward(self, x):
         x = self.initial(x)
