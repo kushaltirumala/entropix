@@ -67,7 +67,7 @@ from util.trainer import SimpleNet, ResidualNet, JeremySimpleNet
 ## Check kernel compared to random networks
 
 depth = 3
-width = 5000
+width = 10000
 num_train_examples = 5
 num_networks = 10**3
 seed = 0
@@ -88,7 +88,7 @@ jeremy_baseline_method_mean = []
 out_baseline_method_max_abs = []
 out_baseline_method_mean = []
 
-for alpha in [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]:
+for alpha in [0.8]:
 
 	_, _, train_loader, _ = get_data( num_train_examples=num_train_examples,
 									  num_test_examples=None,
@@ -182,12 +182,12 @@ for alpha in [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]:
 	out_baseline_method_max_abs.append(mean_diff_1.item())
 	out_baseline_method_mean.append(mean_diff_3.item())
 
-jeremy_baseline_method_max_abs = np.array(jeremy_baseline_method_max_abs)
-jeremy_baseline_method_mean = np.array(jeremy_baseline_method_mean)
-out_baseline_method_max_abs = np.array(out_baseline_method_max_abs)
-out_baseline_method_mean = np.array(out_baseline_method_mean)
+# jeremy_baseline_method_max_abs = np.array(jeremy_baseline_method_max_abs)
+# jeremy_baseline_method_mean = np.array(jeremy_baseline_method_mean)
+# out_baseline_method_max_abs = np.array(out_baseline_method_max_abs)
+# out_baseline_method_mean = np.array(out_baseline_method_mean)
 
-np.save(open("jeremy_baseline_method_max_abs_wrong.npy", "wb"), jeremy_baseline_method_max_abs)
-np.save(open("jeremy_baseline_method_mean_wrong.npy", "wb"), jeremy_baseline_method_mean)
-np.save(open("out_baseline_method_max_abs_wrong.npy", "wb"), out_baseline_method_max_abs)
-np.save(open("out_baseline_method_mean_wrong.npy", "wb"), out_baseline_method_mean)
+# np.save(open("jeremy_baseline_method_max_abs_wrong.npy", "wb"), jeremy_baseline_method_max_abs)
+# np.save(open("jeremy_baseline_method_mean_wrong.npy", "wb"), jeremy_baseline_method_mean)
+# np.save(open("out_baseline_method_max_abs_wrong.npy", "wb"), out_baseline_method_max_abs)
+# np.save(open("out_baseline_method_mean_wrong.npy", "wb"), out_baseline_method_mean)
