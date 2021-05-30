@@ -88,7 +88,7 @@ jeremy_baseline_method_mean = []
 out_baseline_method_max_abs = []
 out_baseline_method_mean = []
 
-for alpha in [0.8]:
+for alpha in [1.0]:
 
 	_, _, train_loader, _ = get_data( num_train_examples=num_train_examples,
 									  num_test_examples=None,
