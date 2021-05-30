@@ -67,7 +67,7 @@ from util.trainer import SimpleNet, ResidualNet, JeremySimpleNet
 ## Check kernel compared to random networks
 
 depth = 3
-width = 10000
+width = 50000
 num_train_examples = 5
 num_networks = 10**3
 seed = 0
