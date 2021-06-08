@@ -8,10 +8,10 @@ import math
 import numpy as np
 from torch.autograd import Variable
 
-batch_size = 10
+batch_size = 100
 shuffle=True
 num_workers = 1
-depth = 2
+depth = 3
 
 seed = 1
 torch.manual_seed(seed)
@@ -31,14 +31,13 @@ class PBoundNetwork(nn.Module):
 
         n = x.shape[0]
 
-        sigma_1 = sanitise((torch.mm(x, x.t()) / x.shape[1]))
-
+        # sigma_1 = sanitise((torch.mm(x, x.t()) / x.shape[1]))
+        sigma_1 = sanitise((torch.mm(x, x.t())))
 
         for _ in range(depth-1):
         	new_sigma = torch.zeros((n, n))
 
         	sigma = sigma_1
-
 
         	for i in range(n):
         		for j in range(n):
@@ -54,12 +53,7 @@ class PBoundNetwork(nn.Module):
         			new_mean_k_term += mean_k_term*(math.pi - torch.acos(mean_k_term))
         			new_mean_k_term /= math.pi
 
-        			# h_mean_k_term = (1.0/math.pi) * (torch.sqrt(1 - mean_k_term**2) + mean_k_term * (math.pi - torch.acos(mean_k_term)))
-
         			t_sigma_term = cross_product_term * new_mean_k_term
-
-        			# assert(cross_product_term == 1)
-        			# import pdb; pdb.set_trace()
 
         			new_sigma[i][j] = (1.0/(1.0 + alpha**2)) * (sigma[i][j] + (alpha**2) * t_sigma_term)
         			# new_sigma[i][j] = new_mean_k_term
@@ -123,16 +117,16 @@ def main():
 
     model = PBoundNetwork()
 
-    torch.autograd.set_detect_anomaly(True)
+    # torch.autograd.set_detect_anomaly(True)
 
-    alpha = Variable(torch.Tensor([1.0]), requires_grad=True)
+    alpha = Variable(torch.Tensor([0.5]), requires_grad=True)
 
     # alpha = 0.1
+    norms = torch.norm(data, dim=1)
+    normed_data_final = torch.div(data.T, norms).T
 
     labels = labels.type(torch.FloatTensor)
-    outputs = model(data, labels, alpha)
-
-
+    outputs = model(normed_data_final, labels, alpha)
 
     outputs.backward()
 
