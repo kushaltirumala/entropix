@@ -67,6 +67,29 @@ class ResidualNet(nn.Module):
 
         return x
 
+
+class ResidualNetVariancePreserving(nn.Module):
+    def __init__(self, depth, width, alpha):
+        super(ResidualNetVariancePreserving, self).__init__()
+
+        self.width = width
+        self.depth = depth
+        self.initial = nn.Linear(784, width, bias=False)
+        self.layers = nn.ModuleList([nn.Linear(width, width, bias=False) for _ in range(depth-2)])
+        self.final = nn.Linear(width, 1, bias=False)
+        self.alpha = alpha
+
+    def forward(self, x):
+
+        x = self.initial(x)
+
+        for layer in self.layers:
+            x = (1.0/math.sqrt(1 + self.alpha**2))*(x + self.alpha * F.relu(layer(x)) * math.sqrt(2))
+
+        x = self.final(x)
+
+        return x
+
 class JeremySimpleNet(nn.Module):
     def __init__(self, depth, width):
         super(JeremySimpleNet, self).__init__()

@@ -8,7 +8,7 @@ import random
 
 from util.kernel import sanitise, increment_kernel, complexity, invert_bound, increment_kernel_resnet_my_derivation
 from util.data import get_data, normalize_data
-from util.trainer import SimpleNet, ResidualNet, JeremySimpleNet
+from util.trainer import SimpleNet, ResidualNet, JeremySimpleNet, ResidualNetVariancePreserving
 
 ## Check compositional kernel
 #
@@ -67,15 +67,16 @@ from util.trainer import SimpleNet, ResidualNet, JeremySimpleNet
 ## Check kernel compared to random networks
 
 depth = 3
-width = 10000
+width = 1000
 num_train_examples = 5
 num_networks = 10**3
 seed = 0
 device = None
-if torch.cuda.is_available():
-	device = torch.device("cuda:1")
-else:
-	device = torch.device("cpu")
+# if torch.cuda.is_available():
+# 	device = torch.device("cuda:1")
+# else:
+# 	device = torch.device("cpu")
+device = torch.device("cpu")
 
 
 random.seed(seed)
@@ -85,10 +86,10 @@ torch.cuda.manual_seed(seed)
 
 jeremy_baseline_method_max_abs = []
 jeremy_baseline_method_mean = []
-out_baseline_method_max_abs = []
-out_baseline_method_mean = []
+our_baseline_method_max_abs = []
+our_baseline_method_mean = []
 
-for alpha in [1.0]:
+for alpha in [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]:
 
 	_, _, train_loader, _ = get_data( num_train_examples=num_train_examples,
 									  num_test_examples=None,
@@ -107,9 +108,10 @@ for alpha in [1.0]:
 	with torch.no_grad():
 		print(f"Sampling {num_networks} random networks")
 		for network_idx in tqdm(range(num_networks)):
-			model = ResidualNet(depth, width, alpha)
+			# model = ResidualNet(depth, width, alpha)
 			# model = SimpleNet(depth, width, alpha, residual=False)
 			# model = JeremySimpleNet(depth, width)
+			model = ResidualNetVariancePreserving(depth, width, alpha)
 			model = model.to(device)
 			for p in model.parameters():
 				p.data = torch.randn_like(p) / math.sqrt(p.shape[1])
@@ -142,22 +144,33 @@ for alpha in [1.0]:
 				cross_product_term = torch.sqrt(k_x_x * k_tilde_x_tilde_x)
 
 				mean_k_term = sigma[i][j] / cross_product_term
-
-				h_mean_k_term = (1.0/math.pi) * (math.sqrt(1 - mean_k_term**2) + mean_k_term * (math.pi - torch.acos(mean_k_term)))
-
-				t_sigma_term = cross_product_term * h_mean_k_term
-
-				new_sigma[i][j] = ((1 - alpha**2)) * sigma[i][j] + (alpha**2) * t_sigma_term
+				# mean_k_term = sigma[i][j]
 
 
+				new_mean_k_term = torch.sqrt(1-mean_k_term**2)
+				new_mean_k_term += mean_k_term*(math.pi - torch.acos(mean_k_term))
+				new_mean_k_term /= math.pi
+
+				# h_mean_k_term = (1.0/math.pi) * (torch.sqrt(1 - mean_k_term**2) + mean_k_term * (math.pi - torch.acos(mean_k_term)))
+
+				t_sigma_term = cross_product_term * new_mean_k_term
+
+				# assert(cross_product_term == 1)
+				# import pdb; pdb.set_trace()
+
+				new_sigma[i][j] = (1.0/(1.0 + alpha**2)) * (sigma[i][j] + (alpha**2) * t_sigma_term)
+				# new_sigma[i][j] = new_mean_k_term
+
+
+
+
+		new_sigma = torch.clamp(new_sigma, -1, 1)
 		sigma_1 = new_sigma
 
-		# sigma_2 = increment_kernel_resnet_my_derivation(sigma_2, alpha)
 		sigma_3 = increment_kernel(sigma_3)
 
 	sample_cov = sample_cov.to(device)
 	sigma_1 = sigma_1.to(device)
-	# sigma_2 = sigma_2.to(device)
 	sigma_3 = sigma_3.to(device)
 
 	diff_1 = torch.max(torch.abs(sigma_1 - sample_cov))
@@ -177,17 +190,17 @@ for alpha in [1.0]:
 	print("mean difference 1 (paper method): ", mean_diff_1.item())
 	# print("mean difference 2 (our weird adhoc method): ", mean_diff_2.item())
 	print("mean difference 3 (original jeremy method): ", mean_diff_3.item())
-	jeremy_baseline_method_max_abs.append(diff_1.item())
-	jeremy_baseline_method_mean.append(diff_3.item())
-	out_baseline_method_max_abs.append(mean_diff_1.item())
-	out_baseline_method_mean.append(mean_diff_3.item())
+	our_baseline_method_max_abs.append(diff_1.item())
+	jeremy_baseline_method_max_abs.append(diff_3.item())
+	our_baseline_method_mean.append(mean_diff_1.item())
+	jeremy_baseline_method_mean.append(mean_diff_3.item())
 
-# jeremy_baseline_method_max_abs = np.array(jeremy_baseline_method_max_abs)
-# jeremy_baseline_method_mean = np.array(jeremy_baseline_method_mean)
-# out_baseline_method_max_abs = np.array(out_baseline_method_max_abs)
-# out_baseline_method_mean = np.array(out_baseline_method_mean)
+our_baseline_method_max_abs = np.array(our_baseline_method_max_abs)
+jeremy_baseline_method_max_abs = np.array(jeremy_baseline_method_max_abs)
+our_baseline_method_mean = np.array(our_baseline_method_mean)
+jeremy_baseline_method_mean = np.array(jeremy_baseline_method_mean)
 
-# np.save(open("jeremy_baseline_method_max_abs_wrong.npy", "wb"), jeremy_baseline_method_max_abs)
-# np.save(open("jeremy_baseline_method_mean_wrong.npy", "wb"), jeremy_baseline_method_mean)
-# np.save(open("out_baseline_method_max_abs_wrong.npy", "wb"), out_baseline_method_max_abs)
-# np.save(open("out_baseline_method_mean_wrong.npy", "wb"), out_baseline_method_mean)
+np.save(open("our_baseline_method_max_abs.npy", "wb"), our_baseline_method_max_abs)
+np.save(open("jeremy_baseline_method_max_abs.npy", "wb"), jeremy_baseline_method_max_abs)
+np.save(open("our_baseline_method_mean.npy", "wb"), our_baseline_method_mean)
+np.save(open("jeremy_baseline_method_mean.npy", "wb"), jeremy_baseline_method_mean)
