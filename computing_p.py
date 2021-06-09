@@ -7,6 +7,7 @@ import torch.nn.functional as F
 import math
 import numpy as np
 from torch.autograd import Variable
+import matplotlib.pyplot as plt
 
 batch_size = 10
 shuffle=True
@@ -88,25 +89,42 @@ def main():
 
 
     data = torch.flatten(data, start_dim = 2, end_dim = 3).squeeze()
+    norms = torch.norm(data, dim=1)
+    normed_data_final = torch.div(data.T, norms).T
+    labels = labels.type(torch.FloatTensor)
 
     model = PBoundNetwork()
 
-    torch.autograd.set_detect_anomaly(True)
-
-    alpha = Variable(torch.Tensor([0.5]), requires_grad=True)
-
-    # alpha = 0.1
-    norms = torch.norm(data, dim=1)
-    normed_data_final = torch.div(data.T, norms).T
-
-    labels = labels.type(torch.FloatTensor)
-    outputs = model(normed_data_final, labels, alpha)
-
-    outputs.backward()
-
-    print(alpha.grad)
+    # torch.autograd.set_detect_anomaly(True)
 
 
+    results_arr = []
+    outputs_arr = []
+    alpha_vals = np.linspace(0,50,20000)
+    for alpha_val in alpha_vals:
+        alpha = Variable(torch.Tensor([alpha_val]), requires_grad=True)
+        if alpha.grad is not None:
+            alpha.grad.data.zero_()
+        outputs = model(normed_data_final, labels, alpha)
+
+        outputs.backward()
+
+        print("Alpha val: " + str(alpha_val) + " output: " + str(outputs.item()) + "grad: " + str(alpha.grad.item()))
+        results_arr.append(alpha.grad.item())
+        outputs_arr.append(outputs.item())
+
+
+
+    results_arr = np.array(results_arr)
+    outputs_arr = np.array(outputs_arr)
+
+    plt.plot(alpha_vals, results_arr)
+    plt.title("Alpha vals vs derivative")
+    plt.show()
+
+    plt.plot(alpha_vals, outputs_arr)
+    plt.title("Alpha vals vs raw p bound")
+    plt.show()
 
 
 if __name__ == "__main__":
