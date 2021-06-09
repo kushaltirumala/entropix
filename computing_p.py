@@ -12,9 +12,9 @@ import matplotlib.pyplot as plt
 batch_size = 10
 shuffle=True
 num_workers = 1
-depth = 2
+# depth = 50
 
-seed = 1
+seed = 5
 torch.manual_seed(seed)
 torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
@@ -30,7 +30,7 @@ class PBoundNetwork(nn.Module):
         super(PBoundNetwork, self).__init__()
         # self.layers = nn.ModuleList([HFunction() for _ in range(depth-1)])
 
-    def forward(self, x, c, alpha):
+    def forward(self, x, c, alpha, depth):
 
         sigma_1 = sanitise((torch.mm(x, x.t())))
 
@@ -98,34 +98,51 @@ def main():
     # torch.autograd.set_detect_anomaly(True)
 
 
-    results_arr = []
-    outputs_arr = []
-    alpha_vals = np.linspace(0,50,20000)
-    for alpha_val in alpha_vals:
-        alpha = Variable(torch.Tensor([alpha_val]), requires_grad=True)
-        if alpha.grad is not None:
-            alpha.grad.data.zero_()
-        outputs = model(normed_data_final, labels, alpha)
-
-        outputs.backward()
-
-        print("Alpha val: " + str(alpha_val) + " output: " + str(outputs.item()) + "grad: " + str(alpha.grad.item()))
-        results_arr.append(alpha.grad.item())
-        outputs_arr.append(outputs.item())
 
 
+    lowest_c1_alpha_val = []
+    depth_vals = [2, 3, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 100]
+    for depth in tqdm(depth_vals):
+        # results_arr = []
+        outputs_arr = []
+        alpha_vals = np.linspace(0, 10, 1000)
+        for alpha_val in alpha_vals:
+            alpha = Variable(torch.Tensor([alpha_val]), requires_grad=True)
+            if alpha.grad is not None:
+                alpha.grad.data.zero_()
+            outputs = model(normed_data_final, labels, alpha, depth)
 
-    results_arr = np.array(results_arr)
-    outputs_arr = np.array(outputs_arr)
+            outputs.backward()
 
-    plt.plot(alpha_vals, results_arr)
-    plt.title("Alpha vals vs derivative")
+            # print("Alpha val: " + str(alpha_val) + " output: " + str(outputs.item()) + "grad: " + str(alpha.grad.item()))
+            # results_arr.append(alpha.grad.item())
+            outputs_arr.append(outputs.item())
+
+
+
+        # results_arr = np.array(results_arr)
+        outputs_arr = np.array(outputs_arr)
+
+        # plt.plot(alpha_vals, results_arr)
+        # plt.title("Alpha vals vs grad(C_1)")
+        # plt.show()
+        #
+        # plt.plot(alpha_vals, outputs_arr)
+        # plt.title("Alpha vals vs C_1")
+        # plt.show()
+
+        # print("lowest C_1 bound happens at ")
+        index_min = np.argmin(outputs_arr)
+        alpha_val_index_min = alpha_vals[index_min]
+        # print("lowest alpha val: " + str(alpha_val_index_min))
+        lowest_c1_alpha_val.append(alpha_val_index_min)
+
+    lowest_c1_alpha_val = np.array(lowest_c1_alpha_val)
+    plt.plot(depth_vals, lowest_c1_alpha_val)
+    plt.title("Depth vs optimal alpha value (fixed dataset size batch size 10 MNIST)")
     plt.show()
 
-    plt.plot(alpha_vals, outputs_arr)
-    plt.title("Alpha vals vs raw p bound")
-    plt.show()
-
+    np.save(open("lowest_c1_alpha_val.npy", "wb"), lowest_c1_alpha_val)
 
 if __name__ == "__main__":
     main()
