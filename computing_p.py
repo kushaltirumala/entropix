@@ -8,10 +8,10 @@ import math
 import numpy as np
 from torch.autograd import Variable
 
-batch_size = 100
+batch_size = 10
 shuffle=True
 num_workers = 1
-depth = 3
+depth = 2
 
 seed = 1
 torch.manual_seed(seed)
@@ -23,65 +23,39 @@ np.random.seed(seed)
 def sanitise(sigma):
     return torch.clamp(sigma, -1, 1)
 
+
 class PBoundNetwork(nn.Module):
     def __init__(self):
         super(PBoundNetwork, self).__init__()
+        # self.layers = nn.ModuleList([HFunction() for _ in range(depth-1)])
 
     def forward(self, x, c, alpha):
 
-        n = x.shape[0]
-
-        # sigma_1 = sanitise((torch.mm(x, x.t()) / x.shape[1]))
         sigma_1 = sanitise((torch.mm(x, x.t())))
 
-        for _ in range(depth-1):
-        	new_sigma = torch.zeros((n, n))
+        for _ in range(depth - 1):
+            new_sigma_1 = torch.sqrt(1-sigma_1**2)
+            new_sigma_added_1 = new_sigma_1 + sigma_1*(math.pi - torch.acos(sigma_1))
+            final_sigma_1 = new_sigma_added_1/math.pi
+            pre_clamped_sig_1 = (1.0/(1.0 + alpha**2)) * (sigma_1 + (alpha**2) * (final_sigma_1))
+            sigma_1 = torch.clamp(pre_clamped_sig_1, -0.95, 0.95)
 
-        	sigma = sigma_1
-
-        	for i in range(n):
-        		for j in range(n):
-        			k_x_x = sigma[i][i]
-        			k_tilde_x_tilde_x = sigma[j][j]
-        			cross_product_term = torch.sqrt(k_x_x * k_tilde_x_tilde_x)
-
-        			mean_k_term = sigma[i][j] / cross_product_term
-        			# mean_k_term = sigma[i][j]
-
-
-        			new_mean_k_term = torch.sqrt(1-mean_k_term**2)
-        			new_mean_k_term += mean_k_term*(math.pi - torch.acos(mean_k_term))
-        			new_mean_k_term /= math.pi
-
-        			t_sigma_term = cross_product_term * new_mean_k_term
-
-        			new_sigma[i][j] = (1.0/(1.0 + alpha**2)) * (sigma[i][j] + (alpha**2) * t_sigma_term)
-        			# new_sigma[i][j] = new_mean_k_term
-
-        	new_sigma = torch.clamp(new_sigma, -1, 1)
-        	sigma_1 = new_sigma
-
-
+        # fill diagonals with 1's again
         n = sigma_1.shape[0]
+        sigma_1.fill_diagonal_(1)
         id = torch.eye(n)
 
-        assert ( sigma_1 == sigma_1.t() ).all()
-        det_sigma = torch.det(sigma_1)
-        # if det_sigma == 0.0:
-        #     # add a little noise to covariance to make it nonzero
-        #     sigma[0][0] += 0.0001
         u = torch.cholesky(sigma_1)
+
         inv = torch.cholesky_inverse(u)
-        assert (torch.mm(sigma_1, inv) - id).abs().max() < 1e-03
 
         nth_root_det = u.diag().pow(2/n).prod()
         inv_trace = inv.diag().sum()
         inv_proj = torch.dot(c, torch.mv(inv, c))
 
-        formula_1 = n/5.0 + nth_root_det * ( (0.5 - 1/math.pi)*inv_trace + inv_proj/math.pi )
+        formula_1 = nth_root_det * ( (0.5 - 1/math.pi)*inv_trace + inv_proj/math.pi )
+
         return formula_1
-
-
 
 def main():
 
@@ -117,7 +91,7 @@ def main():
 
     model = PBoundNetwork()
 
-    # torch.autograd.set_detect_anomaly(True)
+    torch.autograd.set_detect_anomaly(True)
 
     alpha = Variable(torch.Tensor([0.5]), requires_grad=True)
 
