@@ -24,7 +24,7 @@ width = 1000
 batch_size = 10
 shuffle=True
 num_workers = 1
-binary_mode = True
+binary_mode = False
 
 class ResidualNetVariancePreserving(nn.Module):
     def __init__(self, depth, width, alpha):
@@ -34,7 +34,7 @@ class ResidualNetVariancePreserving(nn.Module):
         self.depth = depth
         self.initial = nn.Linear(784, width, bias=False)
         self.layers = nn.ModuleList([nn.Linear(width, width, bias=False) for _ in range(depth-2)])
-        self.final = nn.Linear(width, 1, bias=False)
+        self.final = nn.Linear(width, 10, bias=False)
         self.alpha = alpha
 
     def forward(self, x):
@@ -110,18 +110,25 @@ def main():
                         p.data = torch.randn_like(p) / math.sqrt(p.shape[1])
 
                     pred = model(data).squeeze()
-                    predicted_labels = torch.sign(pred)
+
+                    if binary_mode:
+                        predicted_labels = torch.sign(pred)
+                    else:
+                        predicted_labels = torch.argmax(pred, axis=1)
+
 
                     num_match_elements = torch.sum(predicted_labels == labels).item()
                     if num_match_elements == labels.shape[0]:
                         # this means the entire data was predicted correctly:
                         num_perfect_networks += 1
 
+
+
             empirical_heatmap[i][j] = num_perfect_networks
 
 
     print(empirical_heatmap)
-    np.save(open("empirical_heatmap_results/v1.npy", "wb"), empirical_heatmap)
+    np.save(open("empirical_heatmap_results/v2.npy", "wb"), empirical_heatmap)
 
             
 
