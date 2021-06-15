@@ -13,9 +13,9 @@ from util.data import get_data, normalize_data
 # batch_size = 10
 shuffle=True
 num_workers = 1
-# depth = 50
-
+# depth = 2
 seed = 1
+
 torch.manual_seed(seed)
 torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
@@ -74,52 +74,68 @@ def main():
                        ]))
 
 
-    lowest_c1_alpha_val = []
-    batch_sizes = [2, 5, 10, 20, 50, 100, 200]
-    for batch_size in tqdm(batch_sizes):
-        training_loader = DataLoader(trainset, shuffle=shuffle, num_workers=num_workers, batch_size=batch_size,drop_last=False)
-        test_loader = DataLoader(testset, shuffle=shuffle, num_workers=num_workers, batch_size=batch_size,drop_last=False)
+    # lowest_c1_alpha_val = []
+    # batch_sizes = [2, 5, 10, 20, 50, 100, 200]
+    # for batch_size in tqdm(batch_sizes):
+    training_loader = DataLoader(trainset, shuffle=shuffle, num_workers=num_workers, batch_size=2,drop_last=False)
+    # test_loader = DataLoader(testset, shuffle=shuffle, num_workers=num_workers, batch_size=batch_size,drop_last=False)
+
+    # full_batch_train_loader, _, _, _ = get_data( num_train_examples=batch_size,
+    #                                              num_test_examples=None,
+    #                                              batch_size=batch_size,
+    #                                              random_labels=False,
+    #                                              binary_digits=True )
+
+    train_data_x, train_data_y = next(iter(training_loader))
+
+    # for i, label in enumerate(train_data_y):
+    #     if label % 2 == 0:
+    #         train_data_y[i] = -1
+    #     else:
+    #         train_data_y[i] = 1
+
+    # train_data_x, train_data_y = normalize_data(train_data_x, train_data_y)
+
+    # test_data_x, test_data_y = next(iter(test_loader))
+    train_data = train_data_x
+    train_data_label = train_data_y
+    # test_data = test_data_x
+    # test_data_label = test_data_y
+
+    data = train_data
+    labels = train_data_label
 
 
-        train_data_x, train_data_y = next(iter(training_loader))
-        test_data_x, test_data_y = next(iter(test_loader))
-        train_data = train_data_x
-        train_data_label = train_data_y
-        test_data = test_data_x
-        test_data_label = test_data_y
-
-        data = train_data
-        labels = train_data_label
+    #
+    data = torch.flatten(data, start_dim = 2, end_dim = 3).squeeze()
+    norms = torch.norm(data, dim=1)
+    normed_data_final = torch.div(data.T, norms).T
+    data = normed_data_final
+    labels = labels.type(torch.FloatTensor)
 
 
-        data = torch.flatten(data, start_dim = 2, end_dim = 3).squeeze()
-        norms = torch.norm(data, dim=1)
-        normed_data_final = torch.div(data.T, norms).T
-        labels = labels.type(torch.FloatTensor)
-
-        model = PBoundNetwork()
+    model = PBoundNetwork()
 
     # torch.autograd.set_detect_anomaly(True)
 
 
 
 
-    # lowest_c1_alpha_val = []
-    # depth_vals = [2, 3, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 100]
-    # for depth in tqdm(depth_vals):
-        # results_arr = []
+    depth_vals = [2]
+    for depth in tqdm(depth_vals):
+        results_arr = []
         outputs_arr = []
-        alpha_vals = np.linspace(0, 10, 1000)
+        alpha_vals = np.linspace(0, 100, 20000)
         for alpha_val in alpha_vals:
             alpha = Variable(torch.Tensor([alpha_val]), requires_grad=True)
             if alpha.grad is not None:
                 alpha.grad.data.zero_()
-            outputs = model(normed_data_final, labels, alpha, 50)
+            outputs = model(data, labels, alpha, depth)
 
             outputs.backward()
 
-            # print("Alpha val: " + str(alpha_val) + " output: " + str(outputs.item()) + "grad: " + str(alpha.grad.item()))
-            # results_arr.append(alpha.grad.item())
+            print("Alpha val: " + str(alpha_val) + " output: " + str(outputs.item()) + "grad: " + str(alpha.grad.item()))
+            results_arr.append(alpha.grad.item())
             outputs_arr.append(outputs.item())
 
 
@@ -127,26 +143,28 @@ def main():
         # results_arr = np.array(results_arr)
         outputs_arr = np.array(outputs_arr)
 
-        # plt.plot(alpha_vals, results_arr)
-        # plt.title("Alpha vals vs grad(C_1)")
-        # plt.show()
-        #
-        # plt.plot(alpha_vals, outputs_arr)
-        # plt.title("Alpha vals vs C_1")
-        # plt.show()
+        plt.plot(alpha_vals, results_arr)
+        plt.title("Alpha vals vs grad(C_1)")
+        plt.show()
 
-        # print("lowest C_1 bound happens at ")
+        plt.plot(alpha_vals, outputs_arr)
+        plt.title("Alpha vals vs C_1")
+        plt.show()
+
+            # print("lowest C_1 bound happens at ")
         index_min = np.argmin(outputs_arr)
         alpha_val_index_min = alpha_vals[index_min]
-        # print("lowest alpha val: " + str(alpha_val_index_min))
-        lowest_c1_alpha_val.append(alpha_val_index_min)
+        print("lowest alpha val: " + str(alpha_val_index_min))
+        # lowest_c1_alpha_val.append(alpha_val_index_min)
 
-    lowest_c1_alpha_val = np.array(lowest_c1_alpha_val)
-    plt.plot(batch_sizes, lowest_c1_alpha_val)
-    plt.title("Batch size vs optimal alpha value (fixed depth = 50) MNIST)")
-    plt.show()
 
-    np.save(open("lowest_c1_alpha_val_batch_sizes.npy", "wb"), lowest_c1_alpha_val)
+
+    # lowest_c1_alpha_val = np.array(lowest_c1_alpha_val)
+    # plt.plot(depth_vals, lowest_c1_alpha_val)
+    # plt.title("Depth vs optimal alpha value (fixed batch size = 25) MNIST, hard binary digits")
+    # plt.show()
+
+    # np.save(open("lowest_c1_alpha_val_batch_sizes.npy", "wb"), lowest_c1_alpha_val)
 
 if __name__ == "__main__":
     main()

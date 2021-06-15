@@ -60,6 +60,6 @@ def get_data(num_train_examples, num_test_examples, batch_size, random_labels, b
 def normalize_data(data, target):
     data = data.view(data.shape[0],-1)
     data /= data.norm(dim=1).unsqueeze(dim=1)
-    data *= math.sqrt(data.shape[1])
+    # data *= math.sqrt(data.shape[1])
     target = target%2*2-1
     return data, target
