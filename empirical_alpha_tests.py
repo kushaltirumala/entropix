@@ -120,7 +120,7 @@ def main():
             empirical_heatmap[i][j] = num_perfect_networks
 
 
-    
+    print(empirical_heatmap)
     np.save(open("empirical_heatmap_results/v1.npy", "wb"), empirical_heatmap)
 
             
