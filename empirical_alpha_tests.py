@@ -52,7 +52,7 @@ class ResidualNetVariancePreserving(nn.Module):
 def main():
 
 
-    depths = [2, 10, 30, 50, 100]
+    depths = [2, 3, 5, 10, 30]
     # depth = 2
 
     alpha_vals = np.linspace(0, 1, 10)
