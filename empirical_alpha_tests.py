@@ -19,7 +19,7 @@ np.random.seed(seed)
 
 device = torch.device("cpu")
 
-num_networks = 10000
+num_networks = 5000
 width = 5000
 batch_size = 10
 shuffle=True
@@ -52,7 +52,7 @@ class ResidualNetVariancePreserving(nn.Module):
 def main():
 
 
-    depths = [2, 3, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 100]
+    depths = [2, 10, 30, 50, 100]
     # depth = 2
 
     alpha_vals = np.linspace(0, 1, 10)
@@ -103,7 +103,7 @@ def main():
 
             with torch.no_grad():
                 # print(f"Sampling {num_networks} random networks")
-                for network_idx in range(num_networks):
+                for network_idx in tqdm(range(num_networks)):
                     model = ResidualNetVariancePreserving(depth, width, alpha)
                     model = model.to(device)
                     for p in model.parameters():
