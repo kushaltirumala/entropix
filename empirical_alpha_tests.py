@@ -7,7 +7,6 @@ import torch.nn.functional as F
 import math
 import numpy as np
 from torch.autograd import Variable
-import matplotlib.pyplot as plt
 from util.data import get_data, normalize_data
 
 
