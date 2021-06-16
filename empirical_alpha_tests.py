@@ -21,7 +21,7 @@ device = torch.device("cpu")
 
 num_networks = 1000
 width = 1000
-batch_size = 25
+batch_size = 10
 shuffle=True
 num_workers = 1
 binary_mode = True
@@ -51,13 +51,13 @@ class ResidualNetVariancePreserving(nn.Module):
 
 def main():
 
-    depths = [2, 3, 5, 10, 20]
-    # depths = [2, 3, 5, 10, 30]
+    # depths = [2, 3, 5, 10, 20]
+    depths = [2, 3, 5]
     # depth = 2
 
 
-    alpha_vals = np.linspace(0, 10, 20)
-    # alpha_vals = np.linspace(0, 1, 10)
+    # alpha_vals = np.linspace(0, 10, 20)
+    alpha_vals = np.linspace(0, 1, 10)
     # alpha = 0.1
 
     trainset = datasets.MNIST('./data', train=True, download=True,
