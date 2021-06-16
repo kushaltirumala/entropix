@@ -21,10 +21,10 @@ device = torch.device("cpu")
 
 num_networks = 1000
 width = 1000
-batch_size = 10
+batch_size = 25
 shuffle=True
 num_workers = 1
-binary_mode = False
+binary_mode = True
 
 class ResidualNetVariancePreserving(nn.Module):
     def __init__(self, depth, width, alpha):
@@ -34,7 +34,7 @@ class ResidualNetVariancePreserving(nn.Module):
         self.depth = depth
         self.initial = nn.Linear(784, width, bias=False)
         self.layers = nn.ModuleList([nn.Linear(width, width, bias=False) for _ in range(depth-2)])
-        self.final = nn.Linear(width, 10, bias=False)
+        self.final = nn.Linear(width, 1, bias=False)
         self.alpha = alpha
 
     def forward(self, x):
@@ -51,11 +51,13 @@ class ResidualNetVariancePreserving(nn.Module):
 
 def main():
 
-
-    depths = [2, 3, 5, 10, 30]
+    depths = [2, 3, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50]
+    # depths = [2, 3, 5, 10, 30]
     # depth = 2
 
-    alpha_vals = np.linspace(0, 1, 10)
+
+    alpha_vals = np.linspace(0, 10, 100)
+    # alpha_vals = np.linspace(0, 1, 10)
     # alpha = 0.1
 
     trainset = datasets.MNIST('./data', train=True, download=True,
@@ -128,7 +130,7 @@ def main():
 
 
     print(empirical_heatmap)
-    np.save(open("empirical_heatmap_results/v2.npy", "wb"), empirical_heatmap)
+    np.save(open("empirical_heatmap_results/v3.npy", "wb"), empirical_heatmap)
 
             
 
