@@ -7,7 +7,7 @@ import torch.nn.functional as F
 import math
 import numpy as np
 from torch.autograd import Variable
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 from util.data import get_data, normalize_data
 
 # batch_size = 10
@@ -126,11 +126,11 @@ def main():
 
 
     depth_vals = [50]
-    for depth in tqdm(depth_vals):
+    for depth in depth_vals:
         results_arr = []
         outputs_arr = []
         alpha_vals = np.linspace(0, 10, 50)
-        for alpha_val in alpha_vals:
+        for alpha_val in tqdm(alpha_vals):
             alpha = Variable(torch.Tensor([alpha_val]), requires_grad=True)
             if alpha.grad is not None:
                 alpha.grad.data.zero_()
@@ -147,18 +147,21 @@ def main():
         # results_arr = np.array(results_arr)
         outputs_arr = np.array(outputs_arr)
 
-        plt.plot(alpha_vals, results_arr)
-        plt.title("Alpha vals vs grad(C_1)")
-        plt.show()
+        # plt.plot(alpha_vals, results_arr)
+        # plt.title("Alpha vals vs grad(C_1)")
+        # plt.show()
 
-        plt.plot(alpha_vals, outputs_arr)
-        plt.title("Alpha vals vs C_1")
-        plt.show()
+        # plt.plot(alpha_vals, outputs_arr)
+        # plt.title("Alpha vals vs C_1")
+        # plt.show()
 
             # print("lowest C_1 bound happens at ")
         index_min = np.argmin(outputs_arr)
         alpha_val_index_min = alpha_vals[index_min]
         print("lowest alpha val: " + str(alpha_val_index_min))
+
+        np.save(open("outputs_arr_30000.npy", "wb"), outputs_arr)
+        np.save(open("results_arr_30000.npy", "wb"), results_arr)
         # lowest_c1_alpha_val.append(alpha_val_index_min)
 
 
