@@ -51,12 +51,12 @@ class ResidualNetVariancePreserving(nn.Module):
 
 def main():
 
-    depths = [2, 3, 5, 10, 20, 30, 40, 50]
+    depths = [2, 3, 5, 10, 20]
     # depths = [2, 3, 5, 10, 30]
     # depth = 2
 
 
-    alpha_vals = np.linspace(0, 10, 30)
+    alpha_vals = np.linspace(0, 10, 20)
     # alpha_vals = np.linspace(0, 1, 10)
     # alpha = 0.1
 
@@ -105,7 +105,7 @@ def main():
 
             with torch.no_grad():
                 # print(f"Sampling {num_networks} random networks")
-                for network_idx in tqdm(range(num_networks)):
+                for network_idx in range(num_networks):
                     model = ResidualNetVariancePreserving(depth, width, alpha)
                     model = model.to(device)
                     for p in model.parameters():
@@ -124,7 +124,7 @@ def main():
                         # this means the entire data was predicted correctly:
                         num_perfect_networks += 1
 
-
+            # print(empirical_heatmap)
 
             empirical_heatmap[i][j] = num_perfect_networks
 
