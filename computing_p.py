@@ -47,7 +47,11 @@ class PBoundNetwork(nn.Module):
         sigma_1.fill_diagonal_(1)
         id = torch.eye(n)
 
-        u = torch.cholesky(sigma_1)
+        try:
+            u = torch.cholesky(sigma_1)
+        except RuntimeError as e:
+            sigma_new = sigma_1 + 0.1*torch.eye(n)
+            u = torch.cholesky(sigma_new)
 
         inv = torch.cholesky_inverse(u)
 
@@ -77,7 +81,7 @@ def main():
     # lowest_c1_alpha_val = []
     # batch_sizes = [2, 5, 10, 20, 50, 100, 200]
     # for batch_size in tqdm(batch_sizes):
-    training_loader = DataLoader(trainset, shuffle=shuffle, num_workers=num_workers, batch_size=2,drop_last=False)
+    training_loader = DataLoader(trainset, shuffle=shuffle, num_workers=num_workers, batch_size=30000,drop_last=False)
     # test_loader = DataLoader(testset, shuffle=shuffle, num_workers=num_workers, batch_size=batch_size,drop_last=False)
 
     # full_batch_train_loader, _, _, _ = get_data( num_train_examples=batch_size,
@@ -88,11 +92,11 @@ def main():
 
     train_data_x, train_data_y = next(iter(training_loader))
 
-    # for i, label in enumerate(train_data_y):
-    #     if label % 2 == 0:
-    #         train_data_y[i] = -1
-    #     else:
-    #         train_data_y[i] = 1
+    for i, label in enumerate(train_data_y):
+        if label % 2 == 0:
+            train_data_y[i] = -1
+        else:
+            train_data_y[i] = 1
 
     # train_data_x, train_data_y = normalize_data(train_data_x, train_data_y)
 
@@ -121,11 +125,11 @@ def main():
 
 
 
-    depth_vals = [2]
+    depth_vals = [50]
     for depth in tqdm(depth_vals):
         results_arr = []
         outputs_arr = []
-        alpha_vals = np.linspace(0, 100, 20000)
+        alpha_vals = np.linspace(0, 10, 50)
         for alpha_val in alpha_vals:
             alpha = Variable(torch.Tensor([alpha_val]), requires_grad=True)
             if alpha.grad is not None:
