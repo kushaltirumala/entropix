@@ -10,7 +10,7 @@ from torch.autograd import Variable
 # import matplotlib.pyplot as plt
 from util.data import get_data, normalize_data
 
-# batch_size = 10
+batch_size = 10
 shuffle=True
 num_workers = 1
 # depth = 2
@@ -39,7 +39,8 @@ class PBoundNetwork(nn.Module):
             new_sigma_1 = torch.sqrt(1-sigma_1**2)
             new_sigma_added_1 = new_sigma_1 + sigma_1*(math.pi - torch.acos(sigma_1))
             final_sigma_1 = new_sigma_added_1/math.pi
-            pre_clamped_sig_1 = (1.0/(1.0 + alpha**2)) * (sigma_1 + (alpha**2) * (final_sigma_1))
+            pre_clamped_sig_1 = ((1 - alpha)*sigma_1 + (alpha) * (final_sigma_1))
+            # pre_clamped_sig_1 = (1.0/(1.0 + alpha**2)) * (sigma_1 + (alpha**2) * (final_sigma_1))
             sigma_1 = torch.clamp(pre_clamped_sig_1, -0.95, 0.95)
 
         # fill diagonals with 1's again
@@ -81,7 +82,7 @@ def main():
     # lowest_c1_alpha_val = []
     # batch_sizes = [2, 5, 10, 20, 50, 100, 200]
     # for batch_size in tqdm(batch_sizes):
-    training_loader = DataLoader(trainset, shuffle=shuffle, num_workers=num_workers, batch_size=30000,drop_last=False)
+    training_loader = DataLoader(trainset, shuffle=shuffle, num_workers=num_workers, batch_size=batch_size,drop_last=False)
     # test_loader = DataLoader(testset, shuffle=shuffle, num_workers=num_workers, batch_size=batch_size,drop_last=False)
 
     # full_batch_train_loader, _, _, _ = get_data( num_train_examples=batch_size,
@@ -125,11 +126,11 @@ def main():
 
 
 
-    depth_vals = [50]
+    depth_vals = [2, 5, 10, 30, 50, 100]
     for depth in depth_vals:
         results_arr = []
         outputs_arr = []
-        alpha_vals = np.linspace(0, 10, 50)
+        alpha_vals = np.linspace(0, 1, 100)
         for alpha_val in tqdm(alpha_vals):
             alpha = Variable(torch.Tensor([alpha_val]), requires_grad=True)
             if alpha.grad is not None:
@@ -144,7 +145,7 @@ def main():
 
 
 
-        # results_arr = np.array(results_arr)
+        results_arr = np.array(results_arr)
         outputs_arr = np.array(outputs_arr)
 
         # plt.plot(alpha_vals, results_arr)
@@ -160,18 +161,18 @@ def main():
         alpha_val_index_min = alpha_vals[index_min]
         print("lowest alpha val: " + str(alpha_val_index_min))
 
-        np.save(open("outputs_arr_30000.npy", "wb"), outputs_arr)
-        np.save(open("results_arr_30000.npy", "wb"), results_arr)
-        # lowest_c1_alpha_val.append(alpha_val_index_min)
+        # np.save(open("v3_kernel/outputs_arr_new_formulation.npy", "wb"), outputs_arr)
+        # np.save(open("v3_kernel/results_arr_30000.npy", "wb"), results_arr)
+        lowest_c1_alpha_val.append(alpha_val_index_min)
 
 
 
-    # lowest_c1_alpha_val = np.array(lowest_c1_alpha_val)
+    lowest_c1_alpha_val = np.array(lowest_c1_alpha_val)
     # plt.plot(depth_vals, lowest_c1_alpha_val)
     # plt.title("Depth vs optimal alpha value (fixed batch size = 25) MNIST, hard binary digits")
     # plt.show()
 
-    # np.save(open("lowest_c1_alpha_val_batch_sizes.npy", "wb"), lowest_c1_alpha_val)
+    np.save(open("v3_kernel/lowest_c1_alpha_val_varying_depths_batch_10_seed_1_bin_labels.npy", "wb"), lowest_c1_alpha_val)
 
 if __name__ == "__main__":
     main()
