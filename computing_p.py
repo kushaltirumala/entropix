@@ -79,7 +79,7 @@ def main():
                        ]))
 
 
-    # lowest_c1_alpha_val = []
+    lowest_c1_alpha_val = []
     # batch_sizes = [2, 5, 10, 20, 50, 100, 200]
     # for batch_size in tqdm(batch_sizes):
     training_loader = DataLoader(trainset, shuffle=shuffle, num_workers=num_workers, batch_size=batch_size,drop_last=False)
@@ -127,11 +127,11 @@ def main():
 
 
     depth_vals = [2, 5, 10, 30, 50, 100]
-    for depth in depth_vals:
+    for depth in tqdm(depth_vals):
         results_arr = []
         outputs_arr = []
         alpha_vals = np.linspace(0, 1, 100)
-        for alpha_val in tqdm(alpha_vals):
+        for alpha_val in alpha_vals:
             alpha = Variable(torch.Tensor([alpha_val]), requires_grad=True)
             if alpha.grad is not None:
                 alpha.grad.data.zero_()
