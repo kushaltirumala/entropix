@@ -21,8 +21,8 @@ np.random.seed(seed)
 
 device = torch.device("cpu")
 
-num_networks = 1000
-width = 1000
+num_networks = 5000
+width = 10000
 batch_size = 25
 shuffle=True
 num_workers = 1
