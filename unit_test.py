@@ -8,7 +8,7 @@ import random
 
 from util.kernel import sanitise, increment_kernel, complexity, invert_bound, increment_kernel_resnet_my_derivation
 from util.data import get_data, normalize_data
-from util.trainer import SimpleNet, ResidualNet, JeremySimpleNet, ResidualNetVariancePreserving
+from util.trainer import SimpleNet, ResidualNet, JeremySimpleNet, ResidualNetVariancePreserving, ResidualNetVariancePreservingV2
 
 ## Check compositional kernel
 #
