@@ -8,6 +8,8 @@ import math
 import numpy as np
 from torch.autograd import Variable
 from util.data import get_data, normalize_data
+from util.trainer import SimpleNet, ResidualNet, JeremySimpleNet, ResidualNetVariancePreserving, ResidualNetVariancePreservingV2
+
 
 
 seed = 1
@@ -25,28 +27,6 @@ batch_size = 25
 shuffle=True
 num_workers = 1
 binary_mode = True
-
-class ResidualNetVariancePreserving(nn.Module):
-    def __init__(self, depth, width, alpha):
-        super(ResidualNetVariancePreserving, self).__init__()
-
-        self.width = width
-        self.depth = depth
-        self.initial = nn.Linear(784, width, bias=False)
-        self.layers = nn.ModuleList([nn.Linear(width, width, bias=False) for _ in range(depth-2)])
-        self.final = nn.Linear(width, 1, bias=False)
-        self.alpha = alpha
-
-    def forward(self, x):
-
-        x = self.initial(x)
-
-        for layer in self.layers:
-            x = (1.0/math.sqrt(1 + self.alpha**2))*(x + self.alpha * F.relu(layer(x)) * math.sqrt(2))
-
-        x = self.final(x)
-
-        return x
 
 
 def main():
@@ -106,7 +86,7 @@ def main():
             with torch.no_grad():
                 # print(f"Sampling {num_networks} random networks")
                 for network_idx in range(num_networks):
-                    model = ResidualNetVariancePreserving(depth, width, alpha)
+                    model = ResidualNetVariancePreservingV2(depth, width, alpha)
                     model = model.to(device)
                     for p in model.parameters():
                         p.data = torch.randn_like(p) / math.sqrt(p.shape[1])
