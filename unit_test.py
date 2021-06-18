@@ -111,7 +111,8 @@ for alpha in [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]:
 			# model = ResidualNet(depth, width, alpha)
 			# model = SimpleNet(depth, width, alpha, residual=False)
 			# model = JeremySimpleNet(depth, width)
-			model = ResidualNetVariancePreserving(depth, width, alpha)
+			# model = ResidualNetVariancePreserving(depth, width, alpha)
+			model = ResidualNetVariancePreservingV2(depth, width, alpha)
 			model = model.to(device)
 			for p in model.parameters():
 				p.data = torch.randn_like(p) / math.sqrt(p.shape[1])
@@ -158,7 +159,8 @@ for alpha in [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]:
 				# assert(cross_product_term == 1)
 				# import pdb; pdb.set_trace()
 
-				new_sigma[i][j] = (1.0/(1.0 + alpha**2)) * (sigma[i][j] + (alpha**2) * t_sigma_term)
+				# new_sigma[i][j] = (1.0/(1.0 + alpha**2)) * (sigma[i][j] + (alpha**2) * t_sigma_term)
+				new_sigma[i][j] = ((1 - alpha)*sigma[i][j] + (alpha) * t_sigma_term)
 				# new_sigma[i][j] = new_mean_k_term
 
 
