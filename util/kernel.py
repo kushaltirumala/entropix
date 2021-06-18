@@ -7,11 +7,12 @@ def sanitise(sigma):
     # return sigma.clamp(min=-1,max=1)
 
 def increment_kernel(sigma):
-    # new_sigma = torch.sqrt(1-sigma**2)
-    # new_sigma += sigma*(math.pi - torch.acos(sigma))
-    # new_sigma /= math.pi
-    # return sanitise(new_sigma)
+    new_sigma = torch.sqrt(1-sigma**2)
+    new_sigma += sigma*(math.pi - torch.acos(sigma))
+    new_sigma /= math.pi
+    return sanitise(new_sigma)
 
+def increment_kernel_improved(sigma):
     new_sigma = torch.zeros((sigma.shape[0], sigma.shape[0]))
 
     for i in range(sigma.shape[0]):
