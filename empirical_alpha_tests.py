@@ -57,7 +57,7 @@ def main():
 
 
     # alpha_vals = np.linspace(0, 10, 20)
-    alpha_vals = np.linspace(0, 1, 30)
+    alpha_vals = np.linspace(0, 1, 10)
     # alpha = 0.1
 
     trainset = datasets.MNIST('./data', train=True, download=True,
