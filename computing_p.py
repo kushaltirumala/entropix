@@ -7,10 +7,10 @@ import torch.nn.functional as F
 import math
 import numpy as np
 from torch.autograd import Variable
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 from util.data import get_data, normalize_data
 
-batch_size = 10
+batch_size = 25
 shuffle=True
 num_workers = 1
 # depth = 2
@@ -168,11 +168,11 @@ def main():
 
 
     lowest_c1_alpha_val = np.array(lowest_c1_alpha_val)
-    # plt.plot(depth_vals, lowest_c1_alpha_val)
-    # plt.title("Depth vs optimal alpha value (fixed batch size = 25) MNIST, hard binary digits")
-    # plt.show()
+    plt.plot(depth_vals, lowest_c1_alpha_val)
+    plt.title("Depth vs optimal alpha value (fixed batch size = 10) MNIST, hard binary digits")
+    plt.show()
 
-    np.save(open("v3_kernel/lowest_c1_alpha_val_varying_depths_batch_10_seed_1_bin_labels.npy", "wb"), lowest_c1_alpha_val)
+    # np.save(open("v3_kernel/lowest_c1_alpha_val_varying_depths_batch_10_seed_1_bin_labels.npy", "wb"), lowest_c1_alpha_val)
 
 if __name__ == "__main__":
     main()
