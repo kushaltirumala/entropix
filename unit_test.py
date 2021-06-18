@@ -5,6 +5,7 @@ import itertools
 import numpy as np
 from tqdm import tqdm
 import random
+import matplotlib.pyplot as plt
 
 from util.kernel import sanitise, increment_kernel, complexity, invert_bound, increment_kernel_resnet_my_derivation
 from util.data import get_data, normalize_data
@@ -89,7 +90,8 @@ jeremy_baseline_method_mean = []
 our_baseline_method_max_abs = []
 our_baseline_method_mean = []
 
-for alpha in [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]:
+alpha_vals = [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]
+for alpha in alpha_vals:
 
 	_, _, train_loader, _ = get_data( num_train_examples=num_train_examples,
 									  num_test_examples=None,
@@ -131,6 +133,7 @@ for alpha in [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]:
 	sigma_1 = sanitise((torch.mm(data, data.t()) / data.shape[1]))
 	# sigma_2 = sanitise((torch.mm(data, data.t()) / data.shape[1]))
 	sigma_3 = sanitise((torch.mm(data, data.t()) / data.shape[1]))
+
 
 	for _ in range(depth-1):
 		new_sigma = torch.zeros((num_train_examples, num_train_examples))
@@ -202,7 +205,19 @@ jeremy_baseline_method_max_abs = np.array(jeremy_baseline_method_max_abs)
 our_baseline_method_mean = np.array(our_baseline_method_mean)
 jeremy_baseline_method_mean = np.array(jeremy_baseline_method_mean)
 
-np.save(open("v3_kernel/our_baseline_method_max_abs.npy", "wb"), our_baseline_method_max_abs)
-np.save(open("v3_kernel/jeremy_baseline_method_max_abs.npy", "wb"), jeremy_baseline_method_max_abs)
-np.save(open("v3_kernel/our_baseline_method_mean.npy", "wb"), our_baseline_method_mean)
-np.save(open("v3_kernel/jeremy_baseline_method_mean.npy", "wb"), jeremy_baseline_method_mean)
+plt.plot(alpha_vals, our_baseline_method_max_abs)
+plt.plot(alpha_vals, jeremy_baseline_method_max_abs)
+plt.legend(["our kernel", "jeremy kernel"], loc ="lower right")
+plt.title("Max(Abs(theoretical cov - empirical cov)), 1000 networks, depth 3")
+plt.show()
+
+
+plt.plot(alpha_vals, our_baseline_method_mean)
+plt.plot(alpha_vals, jeremy_baseline_method_mean)
+plt.legend(["our kernel", "jeremy kernel"], loc ="lower right")
+plt.title("Mean(Abs(theoretical cov - empirical cov)), 1000 networks, depth 3")
+plt.show()
+# np.save(open("v3_kernel/our_baseline_method_max_abs.npy", "wb"), our_baseline_method_max_abs)
+# np.save(open("v3_kernel/jeremy_baseline_method_max_abs.npy", "wb"), jeremy_baseline_method_max_abs)
+# np.save(open("v3_kernel/our_baseline_method_mean.npy", "wb"), our_baseline_method_mean)
+# np.save(open("v3_kernel/jeremy_baseline_method_mean.npy", "wb"), jeremy_baseline_method_mean)

@@ -10,11 +10,11 @@ from torch.autograd import Variable
 import matplotlib.pyplot as plt
 from util.data import get_data, normalize_data
 
-batch_size = 25
+batch_size = 250
 shuffle=True
 num_workers = 1
 # depth = 2
-seed = 1
+seed = 60
 
 torch.manual_seed(seed)
 torch.backends.cudnn.deterministic = True
@@ -139,7 +139,7 @@ def main():
 
             outputs.backward()
 
-            print("Alpha val: " + str(alpha_val) + " output: " + str(outputs.item()) + "grad: " + str(alpha.grad.item()))
+            # print("Alpha val: " + str(alpha_val) + " output: " + str(outputs.item()) + "grad: " + str(alpha.grad.item()))
             results_arr.append(alpha.grad.item())
             outputs_arr.append(outputs.item())
 
