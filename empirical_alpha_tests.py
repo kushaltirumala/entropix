@@ -12,7 +12,7 @@ from util.trainer import SimpleNet, ResidualNet, JeremySimpleNet, ResidualNetVar
 
 
 
-seed = 50
+seed = 10
 
 torch.manual_seed(seed)
 torch.backends.cudnn.deterministic = True
