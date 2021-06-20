@@ -110,7 +110,7 @@ def main():
 
 
     print(empirical_heatmap)
-    np.save(open("v3_kernel/empirical_heatmap_results.npy", "wb"), empirical_heatmap)
+    np.save(open(f"v3_kernel/empirical_heatmap_results_seed_{seed}.npy", "wb"), empirical_heatmap)
 
             
 
