@@ -12,7 +12,7 @@ from util.trainer import SimpleNet, ResidualNet, JeremySimpleNet, ResidualNetVar
 
 
 
-seed = 1
+seed = 50
 
 torch.manual_seed(seed)
 torch.backends.cudnn.deterministic = True
@@ -21,7 +21,7 @@ np.random.seed(seed)
 
 device = torch.device("cpu")
 
-num_networks = 5000
+num_networks = 1000
 width = 1000
 batch_size = 10
 shuffle=True
