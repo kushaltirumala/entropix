@@ -85,7 +85,7 @@ def main():
 
             with torch.no_grad():
                 # print(f"Sampling {num_networks} random networks")
-                for network_idx in range(num_networks):
+                for network_idx in tqdm(range(num_networks)):
                     model = ResidualNetVariancePreservingV2(depth, width, alpha)
                     model = model.to(device)
                     for p in model.parameters():
