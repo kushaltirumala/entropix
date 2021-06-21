@@ -32,7 +32,7 @@ binary_mode = True
 def main():
 
     # depths = [2, 3, 5, 10, 20]
-    depths = [2, 5, 10, 30]
+    depths = [30]
     # depth = 2
 
 
