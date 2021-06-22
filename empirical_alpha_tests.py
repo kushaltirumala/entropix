@@ -37,7 +37,7 @@ def main(argv):
     num_workers = 1
     binary_mode = True
 
-    device = torch.device("cpu")
+    device = torch.device("cuda:0")
 
     # depths = [2, 3, 5, 10, 20]
     depths = [2, 5, 10, 30]
