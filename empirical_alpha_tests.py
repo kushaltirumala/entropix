@@ -12,7 +12,7 @@ from util.trainer import SimpleNet, ResidualNet, JeremySimpleNet, ResidualNetVar
 
 
 
-seed = 10
+seed = 100
 
 torch.manual_seed(seed)
 torch.backends.cudnn.deterministic = True
@@ -32,7 +32,7 @@ binary_mode = True
 def main():
 
     # depths = [2, 3, 5, 10, 20]
-    depths = [30]
+    depths = [2, 5, 10, 30]
     # depth = 2
 
 
@@ -85,7 +85,7 @@ def main():
 
             with torch.no_grad():
                 # print(f"Sampling {num_networks} random networks")
-                for network_idx in tqdm(range(num_networks)):
+                for network_idx in range(num_networks):
                     model = ResidualNetVariancePreservingV2(depth, width, alpha)
                     model = model.to(device)
                     for p in model.parameters():
