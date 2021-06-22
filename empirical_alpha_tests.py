@@ -12,7 +12,7 @@ from util.trainer import SimpleNet, ResidualNet, JeremySimpleNet, ResidualNetVar
 
 
 
-seed = 100
+# seed = 100
 
 torch.manual_seed(seed)
 torch.backends.cudnn.deterministic = True
@@ -29,7 +29,7 @@ num_workers = 1
 binary_mode = True
 
 
-def main():
+def run_main(seed):
 
     # depths = [2, 3, 5, 10, 20]
     depths = [2, 5, 10, 30]
@@ -112,7 +112,11 @@ def main():
     print(empirical_heatmap)
     np.save(open(f"v3_kernel/empirical_heatmap_results_seed_{seed}.npy", "wb"), empirical_heatmap)
 
-            
+
+def main():
+    seeds = [5, 99, 43, 65, 10]
+    for seed in seeds:
+        run_main(seed)
 
 
 if __name__ == "__main__":
