@@ -10,26 +10,34 @@ from torch.autograd import Variable
 from util.data import get_data, normalize_data
 from util.trainer import SimpleNet, ResidualNet, JeremySimpleNet, ResidualNetVariancePreserving, ResidualNetVariancePreservingV2
 
+from absl import flags
+from absl import app
+
+FLAGS = flags.FLAGS
+
+flags.DEFINE_integer('seed', 0, 'seed for experiment run')
+flags.DEFINE_integer('num_networks', 5000, 'num networks for experiment')
+flags.DEFINE_integer('width', 1000, 'width of networks being sampled')
+flags.DEFINE_integer('batch_size', 10, 'batch size to run sampling on')
 
 
-# seed = 100
+def main(argv):
 
-torch.manual_seed(seed)
-torch.backends.cudnn.deterministic = True
-torch.backends.cudnn.benchmark = False
-np.random.seed(seed)
+    seed = FLAGS.seed
+    num_networks = FLAGS.num_networks
+    width = FLAGS.width
+    batch_size = FLAGS.batch_size
 
-device = torch.device("cuda:0")
+    torch.manual_seed(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+    np.random.seed(seed)
 
-num_networks = 5000
-width = 1000
-batch_size = 10
-shuffle=True
-num_workers = 1
-binary_mode = True
+    shuffle=True
+    num_workers = 1
+    binary_mode = True
 
-
-def run_main(seed):
+    device = torch.device("cpu")
 
     # depths = [2, 3, 5, 10, 20]
     depths = [2, 5, 10, 30]
@@ -113,11 +121,9 @@ def run_main(seed):
     np.save(open(f"v3_kernel/empirical_heatmap_results_seed_{seed}.npy", "wb"), empirical_heatmap)
 
 
-def main():
-    seeds = [5, 99, 43, 65, 10]
-    for seed in seeds:
-        run_main(seed)
 
-
+  
 if __name__ == "__main__":
-    main()
+    app.run(main)          
+
+
