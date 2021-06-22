@@ -19,7 +19,7 @@ torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 np.random.seed(seed)
 
-device = torch.device("cpu")
+device = torch.device("cuda:0")
 
 num_networks = 5000
 width = 1000
