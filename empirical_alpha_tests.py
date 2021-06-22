@@ -121,8 +121,6 @@ def main(argv):
     np.save(open(f"v3_kernel/empirical_heatmap_results_seed_{seed}.npy", "wb"), empirical_heatmap)
 
 
-
-  
 if __name__ == "__main__":
     app.run(main)          
 
