@@ -40,7 +40,7 @@ def main(argv):
     device = torch.device("cuda:0")
 
     # depths = [2, 3, 5, 10, 20]
-    depths = [2, 5, 10, 15]
+    depths = [2, 3, 5, 10]
     # depth = 2
 
 
