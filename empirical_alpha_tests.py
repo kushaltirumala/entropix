@@ -40,7 +40,7 @@ def main(argv):
     device = torch.device("cuda:0")
 
     # depths = [2, 3, 5, 10, 20]
-    depths = [2, 5, 10, 30]
+    depths = [2, 5, 10, 15]
     # depth = 2
 
 
@@ -90,13 +90,13 @@ def main(argv):
     data = data.to(device)
     labels = labels.to(device)
 
-    for i, depth in enumerate(tqdm(depths)):
+    for i, depth in enumerate(depths):
         for j, alpha in enumerate(alpha_vals):
             num_perfect_networks = 0
 
             with torch.no_grad():
                 # print(f"Sampling {num_networks} random networks")
-                for network_idx in range(num_networks):
+                for network_idx in tqdm(range(num_networks)):
                     model = ResidualNetVariancePreservingV2(depth, width, alpha)
                     model = model.to(device)
                     for p in model.parameters():
