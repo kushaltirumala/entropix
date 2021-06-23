@@ -90,13 +90,13 @@ def main(argv):
     data = data.to(device)
     labels = labels.to(device)
 
-    for i, depth in enumerate(depths):
+    for i, depth in enumerate(tqdm(depths)):
         for j, alpha in enumerate(alpha_vals):
             num_perfect_networks = 0
 
             with torch.no_grad():
                 # print(f"Sampling {num_networks} random networks")
-                for network_idx in tqdm(range(num_networks)):
+                for network_idx in range(num_networks):
                     model = ResidualNetVariancePreservingV2(depth, width, alpha)
                     model = model.to(device)
                     for p in model.parameters():
