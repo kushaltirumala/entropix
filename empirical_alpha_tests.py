@@ -115,7 +115,7 @@ def main(argv):
                         # this means the entire data was predicted correctly:
                         num_perfect_networks += 1
 
-            print(empirical_heatmap)
+            # print(empirical_heatmap)
 
             empirical_heatmap[i][j] = num_perfect_networks
 
