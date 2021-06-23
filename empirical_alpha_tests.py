@@ -87,6 +87,9 @@ def main(argv):
 
     empirical_heatmap = np.zeros((len(depths), len(alpha_vals)))
 
+    data = data.to(device)
+    labels = labels.to(device)
+
     for i, depth in enumerate(tqdm(depths)):
         for j, alpha in enumerate(alpha_vals):
             num_perfect_networks = 0
