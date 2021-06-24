@@ -1,11 +1,11 @@
-python3 empirical_alpha_tests.py --batch_size=10 --num_networks=5000 --width=1000 --seed=41
-python3 empirical_alpha_tests.py --batch_size=10 --num_networks=5000 --width=1000 --seed=61
-python3 empirical_alpha_tests.py --batch_size=10 --num_networks=5000 --width=1000 --seed=101
-python3 empirical_alpha_tests.py --batch_size=10 --num_networks=5000 --width=1000 --seed=31
-python3 empirical_alpha_tests.py --batch_size=10 --num_networks=5000 --width=1000 --seed=71
+python3 empirical_alpha_tests.py --batch_size=10 --num_networks=5000 --width=1000 --seed=45
+python3 empirical_alpha_tests.py --batch_size=10 --num_networks=5000 --width=1000 --seed=65
+python3 empirical_alpha_tests.py --batch_size=10 --num_networks=5000 --width=1000 --seed=105
+python3 empirical_alpha_tests.py --batch_size=10 --num_networks=5000 --width=1000 --seed=85
+python3 empirical_alpha_tests.py --batch_size=10 --num_networks=5000 --width=1000 --seed=45
+python3 empirical_alpha_tests.py --batch_size=10 --num_networks=5000 --width=1000 --seed=95
+python3 empirical_alpha_tests.py --batch_size=10 --num_networks=5000 --width=1000 --seed=205
+python3 empirical_alpha_tests.py --batch_size=10 --num_networks=5000 --width=1000 --seed=305
+python3 empirical_alpha_tests.py --batch_size=10 --num_networks=5000 --width=1000 --seed=48
+python3 empirical_alpha_tests.py --batch_size=10 --num_networks=5000 --width=1000 --seed=97
 
-# python3 empirical_alpha_tests.py --batch_size=10 --num_networks=5 --width=5 --seed=40
-# python3 empirical_alpha_tests.py --batch_size=10 --num_networks=5 --width=5 --seed=60
-# python3 empirical_alpha_tests.py --batch_size=10 --num_networks=5 --width=5 --seed=100
-# python3 empirical_alpha_tests.py --batch_size=10 --num_networks=5 --width=5 --seed=32
-# python3 empirical_alpha_tests.py --batch_size=10 --num_networks=5 --width=5 --seed=7
