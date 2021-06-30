@@ -77,7 +77,7 @@ def main(argv):
     torch.backends.cudnn.benchmark = False
     np.random.seed(seed)
 
-    device = torch.device("cuda:0")
+    device = torch.device("cpu")
 
     trainset = datasets.MNIST('./data', train=True, download=True,
                        transform=transforms.Compose([
