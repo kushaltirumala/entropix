@@ -128,7 +128,7 @@ def main(argv):
 
     depth_vals = [30]
     for depth in tqdm(depth_vals):
-        results_arr = []
+        # results_arr = []
         outputs_arr = []
         alpha_vals = np.linspace(0, 1, 100)
         for alpha_val in alpha_vals:
@@ -141,12 +141,12 @@ def main(argv):
             outputs.backward()
 
             # print("Alpha val: " + str(alpha_val) + " output: " + str(outputs.item()) + "grad: " + str(alpha.grad.item()))
-            results_arr.append(alpha.grad.item())
+            # results_arr.append(alpha.grad.item())
             outputs_arr.append(outputs.item())
 
 
 
-        results_arr = np.array(results_arr)
+        # results_arr = np.array(results_arr)
         outputs_arr = np.array(outputs_arr)
 
         # plt.plot(alpha_vals, results_arr)
