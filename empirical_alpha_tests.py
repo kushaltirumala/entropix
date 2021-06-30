@@ -101,7 +101,7 @@ def main(argv):
 
             with torch.no_grad():
                 # print(f"Sampling {num_networks} random networks")
-                for network_idx in tqdm(range(num_networks)):
+                for network_idx in range(num_networks):
                     for p in model.parameters():
                         p.data = torch.randn_like(p) / math.sqrt(p.shape[1])
 
