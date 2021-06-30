@@ -118,6 +118,9 @@ def main(argv):
     data = normed_data_final
     labels = labels.type(torch.FloatTensor)
 
+    data = data.to(device)
+    labels = labels.to(device)
+
     model = PBoundNetwork()
     model = model.to(device)
 
