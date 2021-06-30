@@ -51,7 +51,7 @@ class PBoundNetwork(nn.Module):
         try:
             u = torch.cholesky(sigma_1)
         except RuntimeError as e:
-            sigma_new = sigma_1 + 0.5*torch.eye(n)
+            sigma_new = sigma_1 + 1.0*torch.eye(n)
             u = torch.cholesky(sigma_new)
 
         inv = torch.cholesky_inverse(u)
@@ -68,7 +68,7 @@ def main(argv):
 
     seed = FLAGS.seed
 
-    batch_size = 1000
+    batch_size = 10000
     shuffle=True
     num_workers = 1
 
