@@ -93,7 +93,7 @@ def main(argv):
 
 
     for i, depth in enumerate(tqdm(depths)):
-        for j, alpha in enumerate(alpha_vals):
+        for j, alpha in enumerate(tqdm(alpha_vals)):
             num_perfect_networks = 0
 
             model = ResidualNetVariancePreservingV2(depth, width, alpha)
@@ -101,7 +101,7 @@ def main(argv):
 
             with torch.no_grad():
                 # print(f"Sampling {num_networks} random networks")
-                for network_idx in range(num_networks):
+                for network_idx in tqdm(range(num_networks)):
                     for p in model.parameters():
                         p.data = torch.randn_like(p) / math.sqrt(p.shape[1])
 
