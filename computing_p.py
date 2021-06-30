@@ -51,7 +51,7 @@ class PBoundNetwork(nn.Module):
         try:
             u = torch.cholesky(sigma_1)
         except RuntimeError as e:
-            sigma_new = sigma_1 + 0.1*torch.eye(n)
+            sigma_new = sigma_1 + 0.5*torch.eye(n)
             u = torch.cholesky(sigma_new)
 
         inv = torch.cholesky_inverse(u)
