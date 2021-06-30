@@ -96,11 +96,11 @@ def main(argv):
         for j, alpha in enumerate(tqdm(alpha_vals)):
             num_perfect_networks = 0
 
-            
+            model = ResidualNetVariancePreservingV2(depth, width, alpha)
+            model = model.to(device)
 
             with torch.no_grad():
-                model = ResidualNetVariancePreservingV2(depth, width, alpha)
-                model = model.to(device)
+                
                 # print(f"Sampling {num_networks} random networks")
                 for network_idx in range(num_networks):
                     for p in model.parameters():
