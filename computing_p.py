@@ -10,16 +10,15 @@ from torch.autograd import Variable
 import matplotlib.pyplot as plt
 from util.data import get_data, normalize_data
 
-batch_size = 250
-shuffle=True
-num_workers = 1
-# depth = 2
-seed = 60
+from absl import flags
+from absl import app
 
-torch.manual_seed(seed)
-torch.backends.cudnn.deterministic = True
-torch.backends.cudnn.benchmark = False
-np.random.seed(seed)
+
+FLAGS = flags.FLAGS
+
+flags.DEFINE_integer('seed', 0, 'seed for experiment run')
+
+
 
 
 def sanitise(sigma):
@@ -64,7 +63,20 @@ class PBoundNetwork(nn.Module):
 
         return formula_1
 
-def main():
+def main(argv):
+
+    seed = FLAGS.seed
+
+    batch_size = 25
+    shuffle=True
+    num_workers = 1
+
+    torch.manual_seed(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+    np.random.seed(seed)
+
+    device = torch.device("cuda:0")
 
     trainset = datasets.MNIST('./data', train=True, download=True,
                        transform=transforms.Compose([
@@ -80,53 +92,37 @@ def main():
 
 
     lowest_c1_alpha_val = []
-    # batch_sizes = [2, 5, 10, 20, 50, 100, 200]
-    # for batch_size in tqdm(batch_sizes):
-    training_loader = DataLoader(trainset, shuffle=shuffle, num_workers=num_workers, batch_size=batch_size,drop_last=False)
-    # test_loader = DataLoader(testset, shuffle=shuffle, num_workers=num_workers, batch_size=batch_size,drop_last=False)
 
-    # full_batch_train_loader, _, _, _ = get_data( num_train_examples=batch_size,
-    #                                              num_test_examples=None,
-    #                                              batch_size=batch_size,
-    #                                              random_labels=False,
-    #                                              binary_digits=True )
+    training_loader = DataLoader(trainset, shuffle=shuffle, num_workers=num_workers, batch_size=batch_size,drop_last=False)
+
 
     train_data_x, train_data_y = next(iter(training_loader))
+    train_data_x = train_data_x.to(device)
+    train_data_y = train_data_y.to(device)
 
     for i, label in enumerate(train_data_y):
         if label % 2 == 0:
             train_data_y[i] = -1
         else:
             train_data_y[i] = 1
-
-    # train_data_x, train_data_y = normalize_data(train_data_x, train_data_y)
-
-    # test_data_x, test_data_y = next(iter(test_loader))
     train_data = train_data_x
     train_data_label = train_data_y
-    # test_data = test_data_x
-    # test_data_label = test_data_y
 
     data = train_data
     labels = train_data_label
 
-
-    #
     data = torch.flatten(data, start_dim = 2, end_dim = 3).squeeze()
     norms = torch.norm(data, dim=1)
     normed_data_final = torch.div(data.T, norms).T
     data = normed_data_final
     labels = labels.type(torch.FloatTensor)
 
-
     model = PBoundNetwork()
+    model = model.to(device)
 
     # torch.autograd.set_detect_anomaly(True)
 
-
-
-
-    depth_vals = [2, 5, 10, 30, 50, 100]
+    depth_vals = [30]
     for depth in tqdm(depth_vals):
         results_arr = []
         outputs_arr = []
@@ -168,11 +164,11 @@ def main():
 
 
     lowest_c1_alpha_val = np.array(lowest_c1_alpha_val)
-    plt.plot(depth_vals, lowest_c1_alpha_val)
-    plt.title("Depth vs optimal alpha value (fixed batch size = 10) MNIST, hard binary digits")
-    plt.show()
+    # plt.plot(depth_vals, lowest_c1_alpha_val)
+    # plt.title("Depth vs optimal alpha value (fixed batch size = 10) MNIST, hard binary digits")
+    # plt.show()
 
-    # np.save(open("v3_kernel/lowest_c1_alpha_val_varying_depths_batch_10_seed_1_bin_labels.npy", "wb"), lowest_c1_alpha_val)
+    np.save(open(f"full_batch_mnist/lowest_c1_alpha_val_varying_depths_batch_10_seed_{seed}_bin_labels.npy", "wb"), lowest_c1_alpha_val)
 
 if __name__ == "__main__":
-    main()
+    app.run(main)
