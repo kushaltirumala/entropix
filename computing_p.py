@@ -68,7 +68,7 @@ def main(argv):
 
     seed = FLAGS.seed
 
-    batch_size = 25
+    batch_size = 1000
     shuffle=True
     num_workers = 1
 
