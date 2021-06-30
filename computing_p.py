@@ -38,7 +38,6 @@ class PBoundNetwork(nn.Module):
             new_sigma_1 = torch.sqrt(1-sigma_1**2)
             new_sigma_added_1 = new_sigma_1 + sigma_1*(math.pi - torch.acos(sigma_1))
             final_sigma_1 = new_sigma_added_1/math.pi
-            import pdb; pdb.set_trace()
             
             pre_clamped_sig_1 = ((1 - alpha)*sigma_1 + (alpha) * (final_sigma_1))
             # pre_clamped_sig_1 = (1.0/(1.0 + alpha**2)) * (sigma_1 + (alpha**2) * (final_sigma_1))
