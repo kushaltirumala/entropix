@@ -125,7 +125,7 @@ def main(argv):
 
 
     print(empirical_heatmap)
-    np.save(open(f"v3_kernel/empirical_heatmap_results_seed_{seed}.npy", "wb"), empirical_heatmap)
+    np.save(open(f"v4_kernel/empirical_heatmap_results_seed_{seed}.npy", "wb"), empirical_heatmap)
 
 
 if __name__ == "__main__":
