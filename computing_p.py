@@ -68,7 +68,7 @@ def main(argv):
 
     seed = FLAGS.seed
 
-    batch_size = 10000
+    batch_size = 2
     shuffle=True
     num_workers = 1
 
@@ -126,7 +126,7 @@ def main(argv):
 
     # torch.autograd.set_detect_anomaly(True)
 
-    depth_vals = [30]
+    depth_vals = [2, 3, 5, 10]
     for depth in tqdm(depth_vals):
         # results_arr = []
         outputs_arr = []
@@ -167,13 +167,12 @@ def main(argv):
         lowest_c1_alpha_val.append(alpha_val_index_min)
 
 
-
     lowest_c1_alpha_val = np.array(lowest_c1_alpha_val)
     # plt.plot(depth_vals, lowest_c1_alpha_val)
     # plt.title("Depth vs optimal alpha value (fixed batch size = 10) MNIST, hard binary digits")
     # plt.show()
 
-    np.save(open(f"full_batch_mnist/lowest_c1_alpha_val_varying_depths_batch_10_seed_{seed}_bin_labels.npy", "wb"), lowest_c1_alpha_val)
+    np.save(open(f"full_run_v4_kernel_theoretical/lowest_c1_alpha_val_varying_depths_batch_10_seed_{seed}_bin_labels.npy", "wb"), lowest_c1_alpha_val)
 
 if __name__ == "__main__":
     app.run(main)
