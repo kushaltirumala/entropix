@@ -172,7 +172,7 @@ def main(argv):
     # plt.title("Depth vs optimal alpha value (fixed batch size = 10) MNIST, hard binary digits")
     # plt.show()
 
-    np.save(open(f"full_run_v5_kernel_theoretical/lowest_c1_alpha_val_varying_depths_batch_10_seed_{seed}_bin_labels.npy", "wb"), lowest_c1_alpha_val)
+    np.save(open(f"full_run_v6_kernel_theoretical/lowest_c1_alpha_val_varying_depths_batch_10_seed_{seed}_bin_labels.npy", "wb"), lowest_c1_alpha_val)
 
 if __name__ == "__main__":
     app.run(main)
