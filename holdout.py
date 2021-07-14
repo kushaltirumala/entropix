@@ -59,14 +59,7 @@ for alpha in alpha_list:
     train_acc_list = []
     test_acc_list = []
     for _ in range(100):
-        train_acc, test_acc, model = train_network( train_loader = train_loader,
-                                                    test_loader = test_loader,
-                                                    depth=depth,
-                                                    width=width,
-                                                    init_lr=init_lr, 
-                                                    decay=decay,
-                                                    break_on_fit=False,
-                                                    target_scale=alpha )
+        train_acc, test_acc, model, model_init = train_network( train_loader = train_loader, test_loader = test_loader, depth=depth, width=width, init_lr=init_lr, decay=decay, break_on_fit=False, target_scale=alpha )
         print(f"Train acc: {train_acc[-1]}")
         print(f"Test acc: {test_acc}")
         train_acc_list.append(train_acc[-1])
