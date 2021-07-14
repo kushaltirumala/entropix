@@ -3,44 +3,14 @@ import torch
 import numpy as np
 
 def sanitise(sigma):
-    return torch.clamp(sigma, -1, 1)
-    # return sigma.clamp(min=-1,max=1)
+    return sigma.clamp(min=-1,max=1)
 
 def increment_kernel(sigma):
-    new_sigma = torch.sqrt(1-sigma**2)
-    new_sigma += sigma*(math.pi - torch.acos(sigma))
+    new_sigma = (1-sigma**2).sqrt()
+    new_sigma += sigma*(math.pi - sigma.acos())
     new_sigma /= math.pi
     return sanitise(new_sigma)
 
-def increment_kernel_improved(sigma):
-    new_sigma = torch.zeros((sigma.shape[0], sigma.shape[0]))
-
-    for i in range(sigma.shape[0]):
-        for j in range(sigma.shape[0]):
-            k_x_x = sigma[i][i]
-            k_tilde_x_tilde_x = sigma[j][j]
-            cross_product_term = torch.sqrt(k_x_x * k_tilde_x_tilde_x)
-
-            mean_k_term = sigma[i][j] / cross_product_term
-
-            new_mean_k_term = torch.sqrt(1-mean_k_term**2)
-            new_mean_k_term += mean_k_term*(math.pi - torch.acos(mean_k_term))
-            new_mean_k_term /= math.pi
-            t_sigma_term = cross_product_term * new_mean_k_term
-
-            new_sigma[i][j] = t_sigma_term
-
-    return sanitise(new_sigma)
-
-
-def increment_kernel_resnet_my_derivation(sigma, alpha):
-    new_sigma = torch.sqrt(1-sigma**2)
-    new_sigma += sigma*(math.pi - torch.acos(sigma))
-    new_sigma /= math.pi
-
-    new_sigma *= (1 + alpha**2)
-
-    return sanitise(new_sigma)
 # TODO: rewrite with cholesky_solve and Frobenius norm trace
 def complexity(sigma, c, samples):
     n = sigma.shape[0]
