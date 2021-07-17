@@ -6,7 +6,7 @@ import numpy as np
 from tqdm import tqdm
 
 from util.data import get_data, normalize_data
-from util.kernel import sanitise, increment_kernel, complexity, invert_bound
+from util.kernel import sanitise, increment_kernel, complexity, invert_bound, increment_ntk_kernel
 from util.trainer import train_network, SimpleNet
 from util.nero import Nero
 
@@ -33,11 +33,11 @@ num_estimator_batches = 10**3
 cuda = True
 
 ### Get data
-
-torch.manual_seed(0)
+seed = 1
+torch.manual_seed(seed)
 torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
-np.random.seed(0)
+np.random.seed(seed)
 
 data = get_data( num_train_examples=num_train_examples,
                  num_test_examples=num_test_examples,
@@ -65,7 +65,7 @@ for alpha in alpha_list:
         train_acc_list.append(train_acc[-1])
         test_acc_list.append(test_acc)
     results[alpha] = (train_acc_list, test_acc_list)
-fname = 'logs_new/holdout/varying-target-scales.pickle'
+fname = 'logs_seed_1/holdout/varying-target-scales.pickle'
 pickle.dump( results, open( fname, "wb" ) )
 
 print("\nEstimating average test acc using NNGP")
@@ -124,7 +124,7 @@ for _ in range(5):
 
     acc_estimate = prob_sum / p_estimate
     acc_estimate_list.append(acc_estimate)
-fname = 'logs_new/holdout/nngp-average-acc.pickle'
+fname = 'logs_seed_1/holdout/nngp-average-acc.pickle'
 pickle.dump( acc_estimate_list, open( fname, "wb" ) )
 
 
@@ -173,7 +173,7 @@ for alpha in alpha_list:
         test_acc_list.append(correct/total)
     results[alpha] = test_acc_list
 
-fname = 'logs_new/holdout/varying-target-scales-nngp.pickle'
+fname = 'logs_seed_1/holdout/varying-target-scales-nngp.pickle'
 pickle.dump( results, open( fname, "wb" ) )
 
 print("\nTest acc of rejection sampled networks")
@@ -223,5 +223,75 @@ for _ in tqdm(range(1000)):
         test_acc_list.append(test_acc)
         pred_scale_list.append(pred_scale)
 
-fname = 'logs_new/holdout/rejection-sampling-networks.pickle'
+fname = 'logs_seed_1/holdout/rejection-sampling-networks.pickle'
 pickle.dump( (train_acc_list, test_acc_list, pred_scale_list), open( fname, "wb" ) )
+
+
+print("\nComputing holdout NTK conditional accuracy")
+results = {}
+for alpha in alpha_list:
+    print(f"\ntarget scale {alpha}")
+
+    train_data, train_target = list(full_batch_train_loader)[0]
+    test_data, test_target = list(full_batch_test_loader)[0]
+
+    data = torch.cat((train_data, test_data), dim=0)
+    target = torch.cat((train_target, test_target), dim=0)
+
+    if cuda: data, target = data.cuda(), target.cuda()
+    data, target = normalize_data(data, target)
+
+    sigma = sanitise(torch.mm(data, data.t()) / data.shape[1]).cpu()
+    ntk = sanitise(torch.mm(data, data.t()) / data.shape[1]).cpu()
+
+    assert ( sigma == sigma.t() ).all()
+
+    for _ in range(depth-1):
+        # compute new ntk based on prev nngp and prev ntk
+        ntk = increment_ntk_kernel(sigma, ntk)
+
+        # compute new nngp 
+        sigma = increment_kernel(sigma)
+
+        
+        assert ( sigma == sigma.t() ).all()
+        assert (ntk == ntk.t()).all()
+
+    ntk_bb = ntk[:num_train_examples, :num_train_examples]
+    ntk_ab = ntk[num_train_examples:, :num_train_examples]
+    ntk_ba = ntk[:num_train_examples, num_train_examples:]
+    ntk_aa = ntk[num_train_examples:, num_train_examples:]
+
+    sigma_bb = sigma[:num_train_examples, :num_train_examples]
+    sigma_ab = sigma[num_train_examples:, :num_train_examples]
+    sigma_ba = sigma[:num_train_examples, num_train_examples:]
+    sigma_aa = sigma[num_train_examples:, num_train_examples:]
+
+    x_b = target[:num_train_examples].float().cpu()
+    x_a = target[num_train_examples:].float().cpu()
+
+    ntk_bb_inv = torch.cholesky_inverse(torch.cholesky(ntk_bb))
+
+    # conditinal mu
+    cond_mu = ntk_ab @ ntk_bb_inv @ x_b * alpha
+
+    # conditional covariance 
+    first_term = ntk_aa
+    second_term = ntk_ab @ ntk_bb_inv @ sigma_bb @ ntk_bb_inv @ ntk_ba
+    third_term = ntk_ab @ ntk_bb_inv @ sigma_ba
+    cond_sigma = first_term + second_term - (third_term + third_term.T)
+    
+    m = torch.distributions.multivariate_normal.MultivariateNormal(cond_mu, cond_sigma)
+    test_acc_list = []
+
+    for _ in range(100):
+        pred = m.sample()
+        
+        correct = (x_a == pred.sign()).sum().item()
+        total = x_a.shape[0]
+        test_acc_list.append(correct/total)
+
+    results[alpha] = test_acc_list
+
+fname = 'logs_seed_1/holdout/varying-target-scales-ntk-v1.pickle'
+pickle.dump( results, open( fname, "wb" ) )

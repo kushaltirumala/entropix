@@ -2,6 +2,14 @@ import math
 import torch
 import numpy as np
 
+def increment_ntk_kernel(nngp_prev, ntk_prev):
+    t_prime = math.pi - nngp_prev.acos()
+    t_prime /= (2 * math.pi)
+    second_term = np.multiply(ntk_prev, t_prime)
+    new_ntk = np.add(nngp_prev, second_term)
+    return new_ntk
+
+
 def sanitise(sigma):
     return sigma.clamp(min=-1,max=1)
 
