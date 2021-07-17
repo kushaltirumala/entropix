@@ -33,7 +33,7 @@ num_estimator_batches = 10**3
 cuda = True
 
 ### Get data
-seed = 1
+seed = 5
 torch.manual_seed(seed)
 torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
@@ -65,7 +65,7 @@ for alpha in alpha_list:
         train_acc_list.append(train_acc[-1])
         test_acc_list.append(test_acc)
     results[alpha] = (train_acc_list, test_acc_list)
-fname = 'logs_seed_1/holdout/varying-target-scales.pickle'
+fname = f'logs_seed_{seed}/holdout/varying-target-scales.pickle'
 pickle.dump( results, open( fname, "wb" ) )
 
 print("\nEstimating average test acc using NNGP")
@@ -124,7 +124,7 @@ for _ in range(5):
 
     acc_estimate = prob_sum / p_estimate
     acc_estimate_list.append(acc_estimate)
-fname = 'logs_seed_1/holdout/nngp-average-acc.pickle'
+fname = f'logs_seed_{seed}/holdout/nngp-average-acc.pickle'
 pickle.dump( acc_estimate_list, open( fname, "wb" ) )
 
 
@@ -173,7 +173,7 @@ for alpha in alpha_list:
         test_acc_list.append(correct/total)
     results[alpha] = test_acc_list
 
-fname = 'logs_seed_1/holdout/varying-target-scales-nngp.pickle'
+fname = f'logs_seed_{seed}/holdout/varying-target-scales-nngp.pickle'
 pickle.dump( results, open( fname, "wb" ) )
 
 print("\nTest acc of rejection sampled networks")
@@ -223,7 +223,7 @@ for _ in tqdm(range(1000)):
         test_acc_list.append(test_acc)
         pred_scale_list.append(pred_scale)
 
-fname = 'logs_seed_1/holdout/rejection-sampling-networks.pickle'
+fname = f'logs_seed_{seed}/holdout/rejection-sampling-networks.pickle'
 pickle.dump( (train_acc_list, test_acc_list, pred_scale_list), open( fname, "wb" ) )
 
 
@@ -293,5 +293,5 @@ for alpha in alpha_list:
 
     results[alpha] = test_acc_list
 
-fname = 'logs_seed_1/holdout/varying-target-scales-ntk-v1.pickle'
+fname = f'logs_seed_{seed}/holdout/varying-target-scales-ntk-v1.pickle'
 pickle.dump( results, open( fname, "wb" ) )
