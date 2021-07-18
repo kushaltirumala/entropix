@@ -4,15 +4,22 @@ import pickle
 import itertools
 import numpy as np
 from tqdm import tqdm
+import os
 
 from util.data import get_data, normalize_data
 from util.kernel import sanitise, increment_kernel, complexity, invert_bound, increment_ntk_kernel
 from util.trainer import train_network, SimpleNet
 from util.nero import Nero
 
+dir_name = 
+if os.path.isdir(f"logs_seed_{seed}_numtrain_{num_train_examples}/holdout"):
+    return
+else:
+    os.mkdir(f"logs_seed_{seed}_numtrain_{num_train_examples}/holdout")
+
 ### Dependent variables
-num_train_examples = 5
-num_test_examples = 50
+num_train_examples = 10
+num_test_examples = 100
 random_labels = False
 binary_digits = True
 depth = 7
@@ -65,7 +72,7 @@ for alpha in alpha_list:
         train_acc_list.append(train_acc[-1])
         test_acc_list.append(test_acc)
     results[alpha] = (train_acc_list, test_acc_list)
-fname = f'logs_seed_{seed}/holdout/varying-target-scales.pickle'
+fname = f'logs_seed_{seed}_numtrain_{num_train_examples}/holdout/varying-target-scales.pickle'
 pickle.dump( results, open( fname, "wb" ) )
 
 print("\nEstimating average test acc using NNGP")
@@ -124,7 +131,7 @@ for _ in range(5):
 
     acc_estimate = prob_sum / p_estimate
     acc_estimate_list.append(acc_estimate)
-fname = f'logs_seed_{seed}/holdout/nngp-average-acc.pickle'
+fname = f'logs_seed_{seed}_numtrain_{num_train_examples}/holdout/nngp-average-acc.pickle'
 pickle.dump( acc_estimate_list, open( fname, "wb" ) )
 
 
@@ -173,7 +180,7 @@ for alpha in alpha_list:
         test_acc_list.append(correct/total)
     results[alpha] = test_acc_list
 
-fname = f'logs_seed_{seed}/holdout/varying-target-scales-nngp.pickle'
+fname = f'logs_seed_{seed}_numtrain_{num_train_examples}/holdout/varying-target-scales-nngp.pickle'
 pickle.dump( results, open( fname, "wb" ) )
 
 print("\nTest acc of rejection sampled networks")
@@ -223,7 +230,7 @@ for _ in tqdm(range(1000)):
         test_acc_list.append(test_acc)
         pred_scale_list.append(pred_scale)
 
-fname = f'logs_seed_{seed}/holdout/rejection-sampling-networks.pickle'
+fname = f'logs_seed_{seed}_numtrain_{num_train_examples}/holdout/holdout/rejection-sampling-networks.pickle'
 pickle.dump( (train_acc_list, test_acc_list, pred_scale_list), open( fname, "wb" ) )
 
 
@@ -293,5 +300,5 @@ for alpha in alpha_list:
 
     results[alpha] = test_acc_list
 
-fname = f'logs_seed_{seed}/holdout/varying-target-scales-ntk-v1.pickle'
+fname = f'logs_seed_{seed}_numtrain_{num_train_examples}/holdout/holdout/varying-target-scales-ntk-v1.pickle'
 pickle.dump( results, open( fname, "wb" ) )
